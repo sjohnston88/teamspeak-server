@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: EC2 LAMP stack server
+Parameters:
+  OperatorEmail:
+    Type: String
+    Description: Email to send alerts to
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: eu-west-1b
+      InstanceType: t3.small
+      IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      ImageId: !Ref AMI
+      KeyName: !Ref KeyPair
+      UserData:
+        Fn::Base64: !Sub |
+          Content-Type: multipart/mixed; boundary="//"
+          MIME-Version: 1.0
+
+          --//
+          Content-Type: text/cloud-config; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="cloud-config.txt"
+
+          #cloud-config
+          cloud_final_modules:
+          - [scripts-user, always]
+
+          --//
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
+          #!/bin/bash
+
+          sudo yum update -y
+
+          echo 'Starting teamspeak'
+          su - ec2-user -c "/home/ec2-user/teamspeak3-server_linux_amd64/ts3server_startscript.sh start"
+          echo 'Started!'
+
+          echo 'Server Started Successfully'
+
+      Tags:
+        - Key: Name
+          Value: !Sub ${ServiceName}-EC2Instance
+
+  # Create security rules for the instance
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Lamp stack inbound and outbound security
+      SecurityGroupIngress:
+        - Description: Teamspeak 3 default file transfer port.
+          IpProtocol: tcp
+          FromPort: 30033
+          ToPort: 30033
+          CidrIp: 0.0.0.0/0
+        - Description: TeamSpeak 3 default serverquery port.
+          IpProtocol: tcp
+          FromPort: 10011
+          ToPort: 10011
+          CidrIp: 0.0.0.0/0
+        - Description: TeamSpeak 3 server default (voice) port.
+          IpProtocol: udp
+          FromPort: 9987
+          ToPort: 9987
+          CidrIp: 0.0.0.0/0
+        - Description: Teamspeak 3 default tsdns port.
+          IpProtocol: tcp
+          FromPort: 41144
+          ToPort: 41144
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${ServiceName}-EC2SecurityGroup
+
+  # Associate the elastic IP with EC2
+  IPAddress:
+    DependsOn: EC2Instance
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !Ref IPARN
+      InstanceId: !Ref EC2Instance
+
+  # Create a role for the instance
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ServiceName}-IAMRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: DistAccess
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - !Ref ResourceID
+
+  # Create an IAM profile for the instance
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub ${ServiceName}-IAMInstanceProfile
+      Path: /
+      Roles:
+        - !Ref InstanceRole
