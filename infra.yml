@@ -19,6 +19,11 @@ Resources:
       ImageId: ami-02df9ea15c1778c9c
       UserData:
         Fn::Base64: !Sub |
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
           #!/bin/bash
 
           apt-get update && apt-get upgrade -y
