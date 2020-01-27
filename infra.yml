@@ -40,10 +40,7 @@ Resources:
 
           #!/bin/bash
           TeamSpeakVersion=${TeamSpeakVersion}
-          echo TeamSpeakVersion
-          echo ${TeamSpeakVersion}
-          echo "Hello 1 ${TeamSpeakVersion}"
-          echo "Hello 2 \${TeamSpeakVersion}"
+          echo "Hello 2 $\{TeamSpeakVersion\}"
           echo "TEAMSPEAK USERDATA SCRIPT"
           echo "CREATING TEAMSPEAK USER"
           sudo adduser --disabled-login teamspeak
@@ -51,18 +48,14 @@ Resources:
           echo "CREATING TEAMSPEAK DIRECTORY"
           cd /home/teamspeak/
           echo "FETCHING TEAMSPEAK FILES"
-          wget https://files.teamspeak-services.com/releases/server/${TeamSpeakVersion}/teamspeak3-server_linux_amd64-/${TeamSpeakVersion}.tar.bz2
-          wget https://files.teamspeak-services.com/releases/server/\${TeamSpeakVersion}/teamspeak3-server_linux_amd64-/\${TeamSpeakVersion}.tar.bz2
-          wget https://files.teamspeak-services.com/releases/server/$\{TeamSpeakVersion\}/teamspeak3-server_linux_amd64-/\$\{TeamSpeakVersion\}.tar.bz2
+          wget https://files.teamspeak-services.com/releases/server/$\{TeamSpeakVersion\}/teamspeak3-server_linux_amd64-/$\{TeamSpeakVersion\}.tar.bz2
           echo "INSTALLING TEAMSPEAK"
-          tar xvfj teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
-          tar xvfj teamspeak3-server_linux_amd64-\${TeamSpeakVersion}.tar.bz2
           tar xvfj teamspeak3-server_linux_amd64-$\{TeamSpeakVersion\}.tar.bz2
           cd teamspeak3-server_linux_amd64
           cp * -R /home/teamspeak
           cd ..
           rm -r teamspeak3-server_linux_amd64
-          rm teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
+          rm teamspeak3-server_linux_amd64-$\{TeamSpeakVersion\}.tar.bz2
           touch .ts3server_license_accepted
           echo "STARTING TEAMSPEAK"
           ./ts3server_startscript.sh start
