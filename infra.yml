@@ -108,6 +108,3 @@ Resources:
       Path: /
       Roles:
         - !Ref InstanceRole
-      Tags:
-        - Key: Name
-          Value: TeamSpeak-InstanceProfile
