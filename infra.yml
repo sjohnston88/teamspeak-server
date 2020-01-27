@@ -25,13 +25,13 @@ Resources:
           adduser --disabled-login teamspeak
           cd /home/teamspeak/
           su teamspeak
-          wget https://files.teamspeak-services.com/releases/server/${AWS::TeamSpeakVersion}/teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
-          tar xvfj teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
+          wget https://files.teamspeak-services.com/releases/server/${TeamSpeakVersion}/teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
+          tar xvfj teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           cd teamspeak3-server_linux_amd64
           cp * -R /home/teamspeak
           cd ..
           rm -r teamspeak3-server_linux_amd64
-          rm teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
+          rm teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           touch .ts3server_license_accepted
 
           ./ts3server_startscript.sh start
