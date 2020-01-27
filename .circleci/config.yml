@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.10
+    working_directory: ~/teamspeak-server
+    steps:
+      - checkout
+      - run:
+          name: Install AWS CLI and Deploy Cloudformation
+          command: |
+            sudo apt-get update && sudo apt-get install -qq -y python-pip libpython-dev
+            curl -O https://bootstrap.pypa.io/get-pip.py && sudo python get-pip.py
+            sudo pip install -q awscli --upgrade
+      - run: ./deploy.sh

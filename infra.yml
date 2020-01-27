@@ -1,68 +1,57 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: EC2 LAMP stack server
+Description: TeamSpeak server
 Parameters:
-  OperatorEmail:
+  TeamSpeakVersion:
     Type: String
-    Description: Email to send alerts to
+    Description: Latest TeamSpeak version number
+    Default: 3.11.0
 
 Resources:
+  # Configure instance - use t3.micro to stay within AWS free tier
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: eu-west-1b
-      InstanceType: t3.small
+      InstanceType: t3.micro
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      ImageId: !Ref AMI
-      KeyName: !Ref KeyPair
+      ImageId: ami-02df9ea15c1778c9c
       UserData:
         Fn::Base64: !Sub |
-          Content-Type: multipart/mixed; boundary="//"
-          MIME-Version: 1.0
-
-          --//
-          Content-Type: text/cloud-config; charset="us-ascii"
-          MIME-Version: 1.0
-          Content-Transfer-Encoding: 7bit
-          Content-Disposition: attachment; filename="cloud-config.txt"
-
-          #cloud-config
-          cloud_final_modules:
-          - [scripts-user, always]
-
-          --//
-          Content-Type: text/x-shellscript; charset="us-ascii"
-          MIME-Version: 1.0
-          Content-Transfer-Encoding: 7bit
-          Content-Disposition: attachment; filename="userdata.txt"
-
           #!/bin/bash
 
-          sudo yum update -y
+          apt-get update && apt-get upgrade -y
 
-          echo 'Starting teamspeak'
-          su - ec2-user -c "/home/ec2-user/teamspeak3-server_linux_amd64/ts3server_startscript.sh start"
-          echo 'Started!'
+          adduser --disabled-login teamspeak
+          cd /home/teamspeak/
+          su teamspeak
+          wget https://files.teamspeak-services.com/releases/server/${AWS::TeamSpeakVersion}/teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
+          tar xvfj teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
+          cd teamspeak3-server_linux_amd64
+          cp * -R /home/teamspeak
+          cd ..
+          rm -r teamspeak3-server_linux_amd64
+          rm teamspeak3-server_linux_amd64-${AWS::TeamSpeakVersion}.tar.bz2
+          touch .ts3server_license_accepted
 
-          echo 'Server Started Successfully'
+          ./ts3server_startscript.sh start
 
       Tags:
         - Key: Name
-          Value: !Sub ${ServiceName}-EC2Instance
+          Value: TeamSpeak-EC2Instance
 
   # Create security rules for the instance
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Lamp stack inbound and outbound security
+      GroupDescription: TeamSpeak inbound and outbound security
       SecurityGroupIngress:
-        - Description: Teamspeak 3 default file transfer port.
+        - Description: TeamSpeak 3 default file transfer port.
           IpProtocol: tcp
           FromPort: 30033
           ToPort: 30033
           CidrIp: 0.0.0.0/0
-        - Description: TeamSpeak 3 default serverquery port.
+        - Description: TeamSpeak 3 default server query port.
           IpProtocol: tcp
           FromPort: 10011
           ToPort: 10011
@@ -79,21 +68,23 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: !Sub ${ServiceName}-EC2SecurityGroup
+          Value: TeamSpeak-EC2SecurityGroup
 
-  # Associate the elastic IP with EC2
-  IPAddress:
+  # Create and associate an elastic IP to the instance
+  ElasticIPAddress:
     DependsOn: EC2Instance
-    Type: AWS::EC2::EIPAssociation
+    Type: AWS::EC2::EIP
     Properties:
-      AllocationId: !Ref IPARN
       InstanceId: !Ref EC2Instance
+    Tags:
+      - Key: Name
+        Value: TeamSpeak-EC2ElasticIPAddress
 
   # Create a role for the instance
   InstanceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ServiceName}-IAMRole
+      RoleName: TeamSpeak-IAMRole
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
@@ -119,7 +110,7 @@ Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: !Sub ${ServiceName}-IAMInstanceProfile
+      InstanceProfileName: TeamSpeak-IAMInstanceProfile
       Path: /
       Roles:
         - !Ref InstanceRole
