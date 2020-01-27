@@ -76,9 +76,9 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       InstanceId: !Ref EC2Instance
-    Tags:
-      - Key: Name
-        Value: TeamSpeak-EC2ElasticIPAddress
+      Tags:
+        - Key: Name
+          Value: TeamSpeak-EC2ElasticIPAddress
 
   # Create a role for the instance
   InstanceRole:
@@ -105,6 +105,9 @@ Resources:
                   - s3:GetObject
                 Resource:
                   - !Ref ResourceID
+      Tags:
+        - Key: Name
+          Value: TeamSpeak-IAMRole
 
   # Create an IAM profile for the instance
   InstanceProfile:
@@ -114,3 +117,6 @@ Resources:
       Path: /
       Roles:
         - !Ref InstanceRole
+      Tags:
+        - Key: Name
+          Value: TeamSpeak-InstanceProfile
