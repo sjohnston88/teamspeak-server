@@ -96,15 +96,6 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - sts:AssumeRole
-      Policies:
-        - PolicyName: DistAccess
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                Resource:
-                  - !Ref ResourceID
       Tags:
         - Key: Name
           Value: TeamSpeak-IAMRole
