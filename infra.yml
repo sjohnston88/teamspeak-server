@@ -12,6 +12,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t3.micro
+      KeyName: teamspeak-server
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
         - Ref: InstanceSecurityGroup
@@ -65,6 +66,11 @@ Resources:
           IpProtocol: tcp
           FromPort: 41144
           ToPort: 41144
+          CidrIp: 0.0.0.0/0
+        - Description: SSH traffic
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
