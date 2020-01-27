@@ -19,7 +19,7 @@ Resources:
       ImageId: ami-02df9ea15c1778c9c
       UserData:
         Fn::Base64: !Sub |
-          TS_VERSION=${TeamSpeakVersion}
+          TeamSpeakVersion=${TeamSpeakVersion}
           #!/bin/bash -ex
           echo "TEAMSPEAK USERDATA SCRIPT"
           echo "CREATING TEAMSPEAK USER"
@@ -28,14 +28,14 @@ Resources:
           echo "CREATING TEAMSPEAK DIRECTORY"
           cd /home/teamspeak/
           echo "FETCHING TEAMSPEAK FILES"
-          wget https://files.teamspeak-services.com/releases/server/${TS_VERSION}/teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
+          wget https://files.teamspeak-services.com/releases/server/${TeamSpeakVersion}/teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           echo "INSTALLING TEAMSPEAK"
-          tar xvfj teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2
+          tar xvfj teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           cd teamspeak3-server_linux_amd64
           cp * -R /home/teamspeak
           cd ..
           rm -r teamspeak3-server_linux_amd64
-          rm teamspeak3-server_linux_amd64-${TS_VERSION}.tar.bz2
+          rm teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           touch .ts3server_license_accepted
           echo "STARTING TEAMSPEAK"
           ./ts3server_startscript.sh start
