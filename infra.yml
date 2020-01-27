@@ -40,7 +40,7 @@ Resources:
 
           #!/bin/bash
 
-          sudo apt-get update && sudo apt-get upgrade -y
+          echo "STARTING"
 
           sudo adduser --disabled-login teamspeak
           sudo su teamspeak
@@ -54,7 +54,7 @@ Resources:
           rm teamspeak3-server_linux_amd64-${TeamSpeakVersion}.tar.bz2
           touch .ts3server_license_accepted
 
-          ./ts3server_startscript.sh start
+          ./ts3server_startscript.sh start | tee output.txt
           --//
 
       Tags:
