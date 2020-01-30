@@ -16,37 +16,18 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      ImageId: ami-02df9ea15c1778c9c
+      ImageId: ami-0713f98de93617bb4
       UserData:
         Fn::Base64: !Sub |
-          Ref: TeamSpeakVersion
-          Content-Type: multipart/mixed; boundary="//"
-          MIME-Version: 1.0
+          #!/bin/bash
 
-          --//
-          Content-Type: text/cloud-config; charset="us-ascii"
-          MIME-Version: 1.0
-          Content-Transfer-Encoding: 7bit
-          Content-Disposition: attachment; filename="cloud-config.txt"
+          echo "UPDATING SERVER"
+          yum update -y
 
-          #cloud-config
-          cloud_final_modules:
-          - [scripts-user, always]
-
-          --//
-          Content-Type: text/x-shellscript; charset="us-ascii"
-          MIME-Version: 1.0
-          Content-Transfer-Encoding: 7bit
-          Content-Disposition: attachment; filename="userdata.txt"
-
-          #!/bin/bash -xe
           TS_VERSION=${TeamSpeakVersion}
-          echo "Hello 2 ${!TeamSpeakVersion}"
-          echo "Hello 2 ${!TS_VERSION}"
-          echo "TEAMSPEAK USERDATA SCRIPT"
           echo "CREATING TEAMSPEAK USER"
-          sudo adduser --disabled-login teamspeak
-          sudo su teamspeak
+          adduser --disabled-login teamspeak
+          su teamspeak
           echo "CREATING TEAMSPEAK DIRECTORY"
           cd /home/teamspeak/
           echo "FETCHING TEAMSPEAK FILES"
@@ -61,7 +42,6 @@ Resources:
           touch .ts3server_license_accepted
           echo "STARTING TEAMSPEAK"
           ./ts3server_startscript.sh start
-          --//
 
       Tags:
         - Key: Name
