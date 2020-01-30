@@ -4,7 +4,7 @@ Parameters:
   TeamSpeakVersion:
     Type: String
     Description: Latest TeamSpeak version number
-    Default: 3.11.0
+    Default: "3.11.0"
 
 Resources:
   # Configure instance - use t3.micro to stay within AWS free tier
@@ -19,7 +19,7 @@ Resources:
       ImageId: ami-0713f98de93617bb4
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash -xe
+          #!/bin/bash
 
           $TeamSpeakVersion = "${TeamSpeakVersion}"
           echo $TeamSpeakVersion
