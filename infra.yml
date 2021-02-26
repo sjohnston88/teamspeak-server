@@ -4,7 +4,7 @@ Parameters:
   TeamSpeakVersion:
     Type: String
     Description: Latest TeamSpeak version number
-    Default: "3.11.0"
+    Default: "3.13.3"
 
 Resources:
   # Configure instance - use t3.micro to stay within AWS free tier
