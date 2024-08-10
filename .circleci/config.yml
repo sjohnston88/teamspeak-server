@@ -1,4 +1,6 @@
 version: 2
+orbs:
+  aws-ecs: circleci/aws-ecs@4.0.0
 jobs:
   build:
     docker:
